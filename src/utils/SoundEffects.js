@@ -1,4 +1,5 @@
-// Sound effects utility for the game
+// Professional Sound Effects Utility for edgenOS
+// Provides OS-like sound effects for various system events
 
 // Create audio context when needed (to comply with autoplay policies)
 let audioContext = null;
@@ -20,90 +21,144 @@ const initAudioContext = () => {
   return audioContext;
 };
 
-// Play a success sound
+// Create a filter for more professional sound
+const createFilter = (context) => {
+  const filter = context.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 2000;
+  filter.Q.value = 1;
+  return filter;
+};
+
+// Play a professional Windows-like success sound
 export const playSuccess = () => {
   const context = initAudioContext();
   if (!context) return;
 
   try {
-    const oscillator = context.createOscillator();
+    // Create oscillators for a richer sound
+    const oscillator1 = context.createOscillator();
+    const oscillator2 = context.createOscillator();
     const gainNode = context.createGain();
+    const filter = createFilter(context);
 
-    oscillator.type = 'sine';
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
+    // Configure oscillators
+    oscillator1.type = 'sine';
+    oscillator2.type = 'triangle';
 
-    // Success sound (ascending notes)
-    oscillator.frequency.setValueAtTime(440, context.currentTime);
-    oscillator.frequency.linearRampToValueAtTime(880, context.currentTime + 0.2);
+    // Connect nodes
+    oscillator1.connect(gainNode);
+    oscillator2.connect(gainNode);
+    gainNode.connect(filter);
+    filter.connect(context.destination);
 
+    // Windows-like success sound (two-note ascending)
+    oscillator1.frequency.setValueAtTime(1046.5, context.currentTime); // C6
+    oscillator1.frequency.setValueAtTime(1318.51, context.currentTime + 0.15); // E6
+
+    oscillator2.frequency.setValueAtTime(523.25, context.currentTime); // C5
+    oscillator2.frequency.setValueAtTime(659.25, context.currentTime + 0.15); // E5
+
+    // Volume envelope
     gainNode.gain.setValueAtTime(0, context.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, context.currentTime + 0.05);
-    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.4);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.15);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.3);
+    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.5);
 
-    oscillator.start(context.currentTime);
-    oscillator.stop(context.currentTime + 0.4);
+    // Play the sound
+    oscillator1.start(context.currentTime);
+    oscillator2.start(context.currentTime);
+    oscillator1.stop(context.currentTime + 0.5);
+    oscillator2.stop(context.currentTime + 0.5);
   } catch (error) {
     console.error('Error playing success sound', error);
   }
 };
 
-// Play an error sound
+// Play a professional Windows-like error sound
 export const playError = () => {
   const context = initAudioContext();
   if (!context) return;
 
   try {
-    const oscillator = context.createOscillator();
+    // Create oscillators for a richer sound
+    const oscillator1 = context.createOscillator();
+    const oscillator2 = context.createOscillator();
     const gainNode = context.createGain();
+    const filter = createFilter(context);
 
-    oscillator.type = 'sine';
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
+    // Configure oscillators
+    oscillator1.type = 'sine';
+    oscillator2.type = 'triangle';
 
-    // Error sound (descending notes)
-    oscillator.frequency.setValueAtTime(330, context.currentTime);
-    oscillator.frequency.linearRampToValueAtTime(220, context.currentTime + 0.2);
+    // Connect nodes
+    oscillator1.connect(gainNode);
+    oscillator2.connect(gainNode);
+    gainNode.connect(filter);
+    filter.connect(context.destination);
 
+    // Windows-like error sound (descending notes)
+    oscillator1.frequency.setValueAtTime(784, context.currentTime); // G5
+    oscillator1.frequency.setValueAtTime(587.33, context.currentTime + 0.15); // D5
+
+    oscillator2.frequency.setValueAtTime(392, context.currentTime); // G4
+    oscillator2.frequency.setValueAtTime(293.66, context.currentTime + 0.15); // D4
+
+    // Volume envelope
     gainNode.gain.setValueAtTime(0, context.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, context.currentTime + 0.05);
-    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.3);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.15);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.3);
+    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.5);
 
-    oscillator.start(context.currentTime);
-    oscillator.stop(context.currentTime + 0.3);
+    // Play the sound
+    oscillator1.start(context.currentTime);
+    oscillator2.start(context.currentTime);
+    oscillator1.stop(context.currentTime + 0.5);
+    oscillator2.stop(context.currentTime + 0.5);
   } catch (error) {
     console.error('Error playing error sound', error);
   }
 };
 
-// Play a click sound
+// Play a professional OS-like click/UI interaction sound
 export const playClick = () => {
   const context = initAudioContext();
   if (!context) return;
 
   try {
+    // Create nodes
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
+    const filter = createFilter(context);
 
+    // Configure oscillator
     oscillator.type = 'sine';
+
+    // Connect nodes
     oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
+    gainNode.connect(filter);
+    filter.connect(context.destination);
 
-    // Click sound (short blip)
-    oscillator.frequency.setValueAtTime(660, context.currentTime);
+    // Professional UI click sound (short, subtle)
+    oscillator.frequency.setValueAtTime(800, context.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(600, context.currentTime + 0.05);
 
+    // Very short, subtle volume envelope
     gainNode.gain.setValueAtTime(0, context.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.2, context.currentTime + 0.01);
-    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.1);
+    gainNode.gain.linearRampToValueAtTime(0.07, context.currentTime + 0.005);
+    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.07);
 
+    // Play the sound
     oscillator.start(context.currentTime);
-    oscillator.stop(context.currentTime + 0.1);
+    oscillator.stop(context.currentTime + 0.07);
   } catch (error) {
     console.error('Error playing click sound', error);
   }
 };
 
-// Play a reward sound
+// Play a professional notification/reward sound
 export const playReward = () => {
   const context = initAudioContext();
   if (!context) return;
@@ -113,40 +168,44 @@ export const playReward = () => {
     const oscillator1 = context.createOscillator();
     const oscillator2 = context.createOscillator();
     const gainNode = context.createGain();
+    const filter = createFilter(context);
 
+    // Configure oscillators
     oscillator1.type = 'sine';
     oscillator2.type = 'triangle';
 
+    // Connect nodes
     oscillator1.connect(gainNode);
     oscillator2.connect(gainNode);
-    gainNode.connect(context.destination);
+    gainNode.connect(filter);
+    filter.connect(context.destination);
 
-    // Reward sound (ascending arpeggio)
-    oscillator1.frequency.setValueAtTime(440, context.currentTime); // A4
-    oscillator1.frequency.setValueAtTime(554.37, context.currentTime + 0.1); // C#5
-    oscillator1.frequency.setValueAtTime(659.25, context.currentTime + 0.2); // E5
-    oscillator1.frequency.setValueAtTime(880, context.currentTime + 0.3); // A5
+    // Professional notification sound (similar to Windows 10 notification)
+    // Two-note pleasant chime
+    oscillator1.frequency.setValueAtTime(880, context.currentTime); // A5
+    oscillator1.frequency.setValueAtTime(1174.66, context.currentTime + 0.15); // D6
 
-    oscillator2.frequency.setValueAtTime(220, context.currentTime); // A3
-    oscillator2.frequency.setValueAtTime(277.18, context.currentTime + 0.1); // C#4
-    oscillator2.frequency.setValueAtTime(329.63, context.currentTime + 0.2); // E4
-    oscillator2.frequency.setValueAtTime(440, context.currentTime + 0.3); // A4
+    oscillator2.frequency.setValueAtTime(440, context.currentTime); // A4
+    oscillator2.frequency.setValueAtTime(587.33, context.currentTime + 0.15); // D5
 
+    // Volume envelope
     gainNode.gain.setValueAtTime(0, context.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.2, context.currentTime + 0.05);
-    gainNode.gain.linearRampToValueAtTime(0.2, context.currentTime + 0.4);
-    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.6);
+    gainNode.gain.linearRampToValueAtTime(0.12, context.currentTime + 0.02);
+    gainNode.gain.linearRampToValueAtTime(0.12, context.currentTime + 0.15);
+    gainNode.gain.linearRampToValueAtTime(0.12, context.currentTime + 0.3);
+    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.5);
 
+    // Play the sound
     oscillator1.start(context.currentTime);
     oscillator2.start(context.currentTime);
-    oscillator1.stop(context.currentTime + 0.6);
-    oscillator2.stop(context.currentTime + 0.6);
+    oscillator1.stop(context.currentTime + 0.5);
+    oscillator2.stop(context.currentTime + 0.5);
   } catch (error) {
     console.error('Error playing reward sound', error);
   }
 };
 
-// Play a level complete sound
+// Play a professional task complete sound (similar to Windows task complete)
 export const playLevelComplete = () => {
   const context = initAudioContext();
   if (!context) return;
@@ -155,30 +214,43 @@ export const playLevelComplete = () => {
     // Create multiple oscillators for a richer sound
     const oscillator1 = context.createOscillator();
     const oscillator2 = context.createOscillator();
+    const oscillator3 = context.createOscillator();
     const gainNode = context.createGain();
+    const filter = createFilter(context);
 
+    // Configure oscillators
     oscillator1.type = 'sine';
     oscillator2.type = 'triangle';
+    oscillator3.type = 'sine';
 
+    // Connect nodes
     oscillator1.connect(gainNode);
     oscillator2.connect(gainNode);
-    gainNode.connect(context.destination);
+    oscillator3.connect(gainNode);
+    gainNode.connect(filter);
+    filter.connect(context.destination);
 
-    // Level complete fanfare
+    // Professional task complete sound (three-note pleasant chime)
+    // Similar to Windows 10 task complete sound
     const notes1 = [
-      { freq: 440, time: 0 },    // A4
-      { freq: 440, time: 0.2 },  // A4
-      { freq: 659.25, time: 0.4 }, // E5
-      { freq: 880, time: 0.7 }   // A5
+      { freq: 987.77, time: 0 },      // B5
+      { freq: 1318.51, time: 0.15 },  // E6
+      { freq: 1567.98, time: 0.3 }    // G6
     ];
 
     const notes2 = [
-      { freq: 220, time: 0 },    // A3
-      { freq: 220, time: 0.2 },  // A3
-      { freq: 329.63, time: 0.4 }, // E4
-      { freq: 440, time: 0.7 }   // A4
+      { freq: 493.88, time: 0 },      // B4
+      { freq: 659.25, time: 0.15 },   // E5
+      { freq: 783.99, time: 0.3 }     // G5
     ];
 
+    const notes3 = [
+      { freq: 246.94, time: 0 },      // B3
+      { freq: 329.63, time: 0.15 },   // E4
+      { freq: 392.00, time: 0.3 }     // G4
+    ];
+
+    // Set frequencies for each oscillator
     notes1.forEach(note => {
       oscillator1.frequency.setValueAtTime(note.freq, context.currentTime + note.time);
     });
@@ -187,17 +259,26 @@ export const playLevelComplete = () => {
       oscillator2.frequency.setValueAtTime(note.freq, context.currentTime + note.time);
     });
 
-    gainNode.gain.setValueAtTime(0, context.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.2, context.currentTime + 0.05);
-    gainNode.gain.setValueAtTime(0.2, context.currentTime + 0.7);
-    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 1.2);
+    notes3.forEach(note => {
+      oscillator3.frequency.setValueAtTime(note.freq, context.currentTime + note.time);
+    });
 
+    // Volume envelope
+    gainNode.gain.setValueAtTime(0, context.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.1, context.currentTime + 0.02);
+    gainNode.gain.setValueAtTime(0.1, context.currentTime + 0.15);
+    gainNode.gain.setValueAtTime(0.1, context.currentTime + 0.3);
+    gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.7);
+
+    // Play the sound
     oscillator1.start(context.currentTime);
     oscillator2.start(context.currentTime);
-    oscillator1.stop(context.currentTime + 1.2);
-    oscillator2.stop(context.currentTime + 1.2);
+    oscillator3.start(context.currentTime);
+    oscillator1.stop(context.currentTime + 0.7);
+    oscillator2.stop(context.currentTime + 0.7);
+    oscillator3.stop(context.currentTime + 0.7);
   } catch (error) {
-    console.error('Error playing level complete sound', error);
+    console.error('Error playing task complete sound', error);
   }
 };
 
@@ -212,13 +293,13 @@ export const vibrate = (pattern) => {
   }
 };
 
-// Vibration patterns
+// Professional vibration patterns (more subtle)
 export const VIBRATION_PATTERNS = {
-  SUCCESS: [100],
-  ERROR: [50, 30, 50],
-  CLICK: [10],
-  REWARD: [50, 30, 50, 30, 100],
-  LEVEL_COMPLETE: [100, 50, 100, 50, 200]
+  SUCCESS: [40],                  // Short single vibration for success
+  ERROR: [30, 20, 30],            // Short pattern for error
+  CLICK: [5],                     // Very subtle click feedback
+  REWARD: [20, 15, 30],           // Subtle notification pattern
+  LEVEL_COMPLETE: [40, 30, 60]    // Task complete pattern
 };
 
 export default {

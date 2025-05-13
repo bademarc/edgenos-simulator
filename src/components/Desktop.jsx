@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NodeIcon, TasksIcon, WalletIcon, StatsIcon } from './Icons';
+import { NodeIcon, TasksIcon, WalletIcon, StatsIcon, MerkleIcon } from './Icons';
 import Taskbar from './Taskbar';
 import './Desktop.css';
 import ReactWinBox from './ReactWinBox';
 import SoundEffects from '../utils/SoundEffects';
+import AnimationEffects from '../utils/AnimationEffects';
 
 const Desktop = () => {
   // State for window visibility
@@ -17,7 +18,8 @@ const Desktop = () => {
     help: false,
     explorer: false,
     verification: false,
-    distribution: false
+    distribution: false,
+    merkle: false
   });
 
   // State for minimized windows
@@ -31,7 +33,8 @@ const Desktop = () => {
     help: false,
     explorer: false,
     verification: false,
-    distribution: false
+    distribution: false,
+    merkle: false
   });
 
   // User profile state
@@ -153,7 +156,8 @@ const Desktop = () => {
         'Wallet': { type: 'app', link: 'wallet' },
         'Tasks': { type: 'app', link: 'tasks' },
         'Verification': { type: 'app', link: 'verification' },
-        'Distribution': { type: 'app', link: 'distribution' }
+        'Distribution': { type: 'app', link: 'distribution' },
+        'Merkle Commitments': { type: 'app', link: 'merkle' }
       }
     },
     'System': {
@@ -186,7 +190,8 @@ const Desktop = () => {
     help: useRef(null),
     explorer: useRef(null),
     verification: useRef(null),
-    distribution: useRef(null)
+    distribution: useRef(null),
+    merkle: useRef(null)
   };
 
   // Update CPU usage and memory usage every 2 seconds
@@ -242,6 +247,21 @@ const Desktop = () => {
       return;
     }
 
+    // Add subtle professional feedback
+    setTimeout(() => {
+      // Find the button that was clicked
+      const verifyButton = document.querySelector(`.verify-button[data-task-id="${taskId}"]`);
+      if (verifyButton) {
+        // Add a professional highlight class
+        verifyButton.classList.add('professional-button-highlight');
+
+        // Remove the highlight class after a short time
+        setTimeout(() => {
+          verifyButton.classList.remove('professional-button-highlight');
+        }, 800);
+      }
+    }, 0);
+
     // Update task with new verification
     const updatedTask = {
       ...task,
@@ -257,14 +277,31 @@ const Desktop = () => {
       SoundEffects.playLevelComplete();
       SoundEffects.vibrate(SoundEffects.VIBRATION_PATTERNS.LEVEL_COMPLETE);
 
-      // Update participation stats
-      setParticipationStats(prev => ({
-        ...prev,
-        yourContributions: prev.yourContributions + 1,
-        yourRank: prev.yourContributions < 5 ? 'Beginner' :
-                 prev.yourContributions < 20 ? 'Contributor' :
-                 prev.yourContributions < 50 ? 'Validator' : 'Expert'
-      }));
+      // Update participation stats with visual feedback
+      setParticipationStats(prev => {
+        const newContributions = prev.yourContributions + 1;
+        const newRank = newContributions < 5 ? 'Beginner' :
+                       newContributions < 20 ? 'Contributor' :
+                       newContributions < 50 ? 'Validator' : 'Expert';
+
+        // Check if rank changed
+        const rankChanged = newRank !== prev.yourRank;
+
+        // If rank changed, show special notification with confetti
+        if (rankChanged) {
+          setTimeout(() => {
+            addNotification('Rank Up!', `You've reached the "${newRank}" rank!`, 'success');
+
+            // No confetti for a more professional look
+          }, 1000);
+        }
+
+        return {
+          ...prev,
+          yourContributions: newContributions,
+          yourRank: newRank
+        };
+      });
 
       // Update aggregation stats
       setAggregationStats(prev => ({
@@ -272,12 +309,18 @@ const Desktop = () => {
         pendingBatches: prev.pendingBatches + 1
       }));
 
-      addNotification('Task Completed', `Task ${taskId} has been fully verified and will be aggregated`, 'success');
+      // Show success notification with special effects
+      setTimeout(() => {
+        addNotification('Task Completed', `Task ${taskId} has been fully verified and will be aggregated`, 'success');
+
+        // No particle effects for a more professional look
+      }, 500);
     } else {
       // Play success sound
       SoundEffects.playSuccess();
       SoundEffects.vibrate(SoundEffects.VIBRATION_PATTERNS.SUCCESS);
 
+      // Show notification with progress information
       addNotification('Verification Added', `Added verification ${updatedTask.currentVerifications}/${updatedTask.verificationThreshold} for Task ${taskId}`, 'info');
     }
 
@@ -287,23 +330,56 @@ const Desktop = () => {
     );
     setTasks(updatedTasks);
 
-    // Update wallet balance with reward
+    // Update wallet balance with reward and visual feedback
     const reward = task.reward;
     setWalletBalance(prev => prev + reward);
+
+    // Create subtle professional effect for reward
+    setTimeout(() => {
+      // Find the wallet balance display if wallet window is open
+      const walletBalanceElement = document.querySelector('.balance-amount');
+      if (walletBalanceElement) {
+        // Add a professional highlight class
+        walletBalanceElement.classList.add('professional-value-update');
+
+        // Remove the highlight class after animation completes
+        setTimeout(() => {
+          walletBalanceElement.classList.remove('professional-value-update');
+        }, 1500);
+      }
+    }, 500);
 
     // Play reward sound
     SoundEffects.playReward();
     SoundEffects.vibrate(SoundEffects.VIBRATION_PATTERNS.REWARD);
 
-    // Update network stats
-    setNetworkStats(prev => ({
-      ...prev,
-      totalVerifications: prev.totalVerifications + 1,
-      verifiedProofs: prev.verifiedProofs + (updatedTask.status === 'Completed' ? 1 : 0)
-    }));
+    // Update network stats with visual feedback
+    setNetworkStats(prev => {
+      const newStats = {
+        ...prev,
+        totalVerifications: prev.totalVerifications + 1,
+        verifiedProofs: prev.verifiedProofs + (updatedTask.status === 'Completed' ? 1 : 0)
+      };
+
+      // Add subtle professional effect for stats update
+      setTimeout(() => {
+        const statsElement = document.querySelector('.winbox-stats');
+        if (statsElement) {
+          // Add a professional highlight class
+          statsElement.classList.add('professional-stats-update');
+
+          // Remove the highlight class after animation completes
+          setTimeout(() => {
+            statsElement.classList.remove('professional-stats-update');
+          }, 800);
+        }
+      }, 800);
+
+      return newStats;
+    });
   };
 
-  // Function to add a notification
+  // Function to add a notification with enhanced visual effects
   const addNotification = (title, message, type = 'info', autoHide = true) => {
     console.log(`Adding notification: ${title} - ${message}`);
 
@@ -313,7 +389,8 @@ const Desktop = () => {
       message,
       type,
       timestamp: new Date(),
-      read: false
+      read: false,
+      animationClass: `notification-${type}-${Math.floor(Math.random() * 3) + 1}` // Random animation variant
     };
 
     // Play notification sound based on type
@@ -321,6 +398,14 @@ const Desktop = () => {
       case 'success':
         SoundEffects.playSuccess();
         SoundEffects.vibrate(SoundEffects.VIBRATION_PATTERNS.SUCCESS);
+
+        // Show confetti for success notifications
+        setTimeout(() => {
+          const desktopElement = document.querySelector('.desktop');
+          if (desktopElement) {
+            AnimationEffects.showConfetti('desktop', 3000, 150);
+          }
+        }, 300);
         break;
       case 'warning':
         SoundEffects.playClick();
@@ -334,6 +419,8 @@ const Desktop = () => {
         SoundEffects.playClick();
         break;
     }
+
+    // No particle effects for a more professional look
 
     // Keep only the 10 most recent notifications
     setNotifications(prev => [newNotification, ...prev].slice(0, 10));
@@ -430,6 +517,14 @@ const Desktop = () => {
       x: 'center',
       y: 'center',
       class: 'winbox-distribution modern'
+    },
+    merkle: {
+      title: 'LayerEdge Merkle Commitments',
+      width: 650,
+      height: 550,
+      x: 'center',
+      y: 'center',
+      class: 'winbox-merkle modern'
     }
   };
 
@@ -487,7 +582,7 @@ const Desktop = () => {
     return () => clearInterval(particleInterval);
   }, []);
 
-  // Function to open a window
+  // Function to open a window with enhanced animations
   const openWindow = (windowType) => {
     console.log(`Opening window: ${windowType}`);
 
@@ -528,47 +623,95 @@ const Desktop = () => {
         return prev;
       });
     }, 100);
+
+    // Add subtle, professional window opening animation
+    setTimeout(() => {
+      // Find the window element
+      const windowElement = document.querySelector(`.${windowConfig[windowType].class.split(' ')[0]}`);
+      if (windowElement) {
+        // Add a professional animation class
+        windowElement.classList.add('window-professional-open');
+
+        // Remove the class after animation completes
+        setTimeout(() => {
+          windowElement.classList.remove('window-professional-open');
+        }, 500);
+      }
+    }, 50); // Minimal delay for better performance
   };
 
-  // Function to close a window
+  // Function to close a window with enhanced animations
   const closeWindow = (windowType) => {
     console.log(`Closing window: ${windowType}`);
 
+    // Find the window element before closing it
+    const windowElement = document.querySelector(`.${windowConfig[windowType].class.split(' ')[0]}`);
+
+    if (windowElement) {
+      // Add a professional closing animation class
+      windowElement.classList.add('window-professional-close');
+    }
+
     // Play sound effect
     SoundEffects.playClick();
     SoundEffects.vibrate(SoundEffects.VIBRATION_PATTERNS.CLICK);
 
-    // Update window state
-    setWindows(prev => ({
-      ...prev,
-      [windowType]: false
-    }));
+    // Delay the actual closing to allow for animation
+    setTimeout(() => {
+      // Update window state
+      setWindows(prev => ({
+        ...prev,
+        [windowType]: false
+      }));
 
-    // Reset minimized state
-    setMinimizedWindows(prev => ({
-      ...prev,
-      [windowType]: false
-    }));
+      // Reset minimized state
+      setMinimizedWindows(prev => ({
+        ...prev,
+        [windowType]: false
+      }));
+
+      // No particle effects for a more professional look
+    }, 300);
   };
 
-  // Function to minimize a window
+  // Function to minimize a window with animation effects
   const minimizeWindow = (windowType) => {
     console.log(`Minimizing window: ${windowType}`);
 
+    // Find the window element and taskbar target
+    const windowElement = document.querySelector(`.${windowConfig[windowType].class.split(' ')[0]}`);
+    const taskbarTarget = document.querySelector(`.taskbar-window.${windowType}-icon`);
+
+    if (windowElement) {
+      // Add professional minimizing animation class
+      windowElement.classList.add('window-professional-minimize');
+    }
+
     // Play sound effect
     SoundEffects.playClick();
     SoundEffects.vibrate(SoundEffects.VIBRATION_PATTERNS.CLICK);
 
-    // Update window states
-    setWindows(prev => ({
-      ...prev,
-      [windowType]: false
-    }));
+    // Delay the actual state change to allow for animation
+    setTimeout(() => {
+      // Update window states
+      setWindows(prev => ({
+        ...prev,
+        [windowType]: false
+      }));
 
-    setMinimizedWindows(prev => ({
-      ...prev,
-      [windowType]: true
-    }));
+      setMinimizedWindows(prev => ({
+        ...prev,
+        [windowType]: true
+      }));
+
+      // Subtle highlight for the taskbar icon
+      if (taskbarTarget) {
+        taskbarTarget.classList.add('professional-highlight');
+        setTimeout(() => {
+          taskbarTarget.classList.remove('professional-highlight');
+        }, 800);
+      }
+    }, 300);
   };
 
   // Function to toggle a window (open if closed, restore if minimized, focus if open)
@@ -1068,6 +1211,7 @@ const Desktop = () => {
                 <li><strong>Verification Tasks</strong> - Complete tasks to earn EDGEN tokens</li>
                 <li><strong>Wallet</strong> - View your balance and transaction history</li>
                 <li><strong>Stats</strong> - Monitor network statistics and activity</li>
+                <li><strong>Merkle Commitments</strong> - Learn how LayerEdge anchors proofs to Bitcoin</li>
               </ul>
             </div>
 
@@ -1095,6 +1239,7 @@ const Desktop = () => {
                 <li><strong>Alt+X</strong> - Open Terminal</li>
                 <li><strong>Alt+F</strong> - Open File Explorer</li>
                 <li><strong>Alt+H</strong> - Open Help</li>
+                <li><strong>Alt+M</strong> - Open Merkle Commitments</li>
               </ul>
             </div>
           </div>
@@ -1382,6 +1527,208 @@ const Desktop = () => {
         }, 0);
         break;
 
+      case 'merkle':
+        content.innerHTML = `
+          <div class="merkle-container">
+            <h3>LayerEdge Merkle Commitments</h3>
+            <p class="merkle-description">
+              LayerEdge batches thousands of zk-proofs, but only posts a single Merkle root on-chain. This commitment scheme ensures that every proof in the batch is verifiable, auditable, and anchored — without bloating Bitcoin with raw data.
+            </p>
+
+            <div class="merkle-visualization">
+              <div class="merkle-tree">
+                <div class="merkle-node root">
+                  <div class="node-content">Merkle Root</div>
+                  <div class="node-hash">0x8f41...</div>
+                </div>
+                <div class="merkle-level level-1">
+                  <div class="merkle-node">
+                    <div class="node-content">Hash 1-2</div>
+                    <div class="node-hash">0x7a32...</div>
+                  </div>
+                  <div class="merkle-node">
+                    <div class="node-content">Hash 3-4</div>
+                    <div class="node-hash">0x9c21...</div>
+                  </div>
+                </div>
+                <div class="merkle-level level-2">
+                  <div class="merkle-node">
+                    <div class="node-content">Hash 1</div>
+                    <div class="node-hash">0x3f12...</div>
+                  </div>
+                  <div class="merkle-node">
+                    <div class="node-content">Hash 2</div>
+                    <div class="node-hash">0x5e67...</div>
+                  </div>
+                  <div class="merkle-node">
+                    <div class="node-content">Hash 3</div>
+                    <div class="node-hash">0x2d45...</div>
+                  </div>
+                  <div class="merkle-node">
+                    <div class="node-content">Hash 4</div>
+                    <div class="node-hash">0x8b19...</div>
+                  </div>
+                </div>
+                <div class="merkle-level level-3">
+                  <div class="merkle-node proof">
+                    <div class="node-content">ZK Proof 1</div>
+                    <div class="node-hash">0x1a2b...</div>
+                  </div>
+                  <div class="merkle-node proof">
+                    <div class="node-content">ZK Proof 2</div>
+                    <div class="node-hash">0x3c4d...</div>
+                  </div>
+                  <div class="merkle-node proof">
+                    <div class="node-content">ZK Proof 3</div>
+                    <div class="node-hash">0x5e6f...</div>
+                  </div>
+                  <div class="merkle-node proof">
+                    <div class="node-content">ZK Proof 4</div>
+                    <div class="node-hash">0x7g8h...</div>
+                  </div>
+                </div>
+              </div>
+              <div class="merkle-controls">
+                <button id="animate-merkle" class="action-button">Animate Proof Inclusion</button>
+                <button id="reset-merkle" class="action-button">Reset</button>
+              </div>
+            </div>
+
+            <div class="merkle-info">
+              <h4>How Merkle Commitments Work</h4>
+              <div class="merkle-steps">
+                <div class="merkle-step">
+                  <div class="step-number">1</div>
+                  <div class="step-content">
+                    <div class="step-title">Batch Collection</div>
+                    <div class="step-description">LayerEdge collects thousands of zk-proofs in a single batch</div>
+                  </div>
+                </div>
+                <div class="merkle-step">
+                  <div class="step-number">2</div>
+                  <div class="step-content">
+                    <div class="step-title">Merkle Tree Construction</div>
+                    <div class="step-description">Each proof becomes a leaf in a Merkle tree, with pairs of nodes hashed together up to a single root</div>
+                  </div>
+                </div>
+                <div class="merkle-step">
+                  <div class="step-number">3</div>
+                  <div class="step-content">
+                    <div class="step-title">Root Anchoring</div>
+                    <div class="step-description">Only the Merkle root is posted on Bitcoin, alongside the recursive proof (πₐgg)</div>
+                  </div>
+                </div>
+                <div class="merkle-step">
+                  <div class="step-number">4</div>
+                  <div class="step-content">
+                    <div class="step-title">Proof Verification</div>
+                    <div class="step-description">Any proof can be verified using just log₂(N) hashes - for 1 million proofs, that's only 20 hashes</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="merkle-benefits">
+              <h4>Benefits of Merkle Commitments</h4>
+              <div class="benefits-grid">
+                <div class="benefit-card">
+                  <div class="benefit-icon succinct-icon"></div>
+                  <div class="benefit-title">Succinct</div>
+                  <div class="benefit-description">Only a single hash needs to be stored on-chain, regardless of batch size</div>
+                </div>
+                <div class="benefit-card">
+                  <div class="benefit-icon tamperproof-icon"></div>
+                  <div class="benefit-title">Tamper-Proof</div>
+                  <div class="benefit-description">Any change to any proof would change the Merkle root</div>
+                </div>
+                <div class="benefit-card">
+                  <div class="benefit-icon verifiable-icon"></div>
+                  <div class="benefit-title">Verifiable</div>
+                  <div class="benefit-description">Anyone can verify any proof's inclusion without revealing the entire batch</div>
+                </div>
+                <div class="benefit-card">
+                  <div class="benefit-icon scalable-icon"></div>
+                  <div class="benefit-title">Scalable</div>
+                  <div class="benefit-description">Perfect for zk-proof networks operating at scale</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="merkle-actions">
+              <button class="action-button" id="learn-more-btn">Learn More About ZK Proofs</button>
+            </div>
+          </div>
+        `;
+
+        // Add event listeners and animation
+        setTimeout(() => {
+          const animateButton = content.querySelector('#animate-merkle');
+          const resetButton = content.querySelector('#reset-merkle');
+          const learnMoreBtn = content.querySelector('#learn-more-btn');
+
+          if (animateButton) {
+            animateButton.addEventListener('click', (e) => {
+              e.stopPropagation();
+
+              // Get all the nodes
+              const proofNodes = content.querySelectorAll('.proof');
+              const level2Nodes = content.querySelectorAll('.level-2 .merkle-node');
+              const level1Nodes = content.querySelectorAll('.level-1 .merkle-node');
+              const rootNode = content.querySelector('.root');
+
+              // Reset any existing animations
+              content.querySelectorAll('.merkle-node').forEach(node => {
+                node.classList.remove('highlight', 'active');
+              });
+
+              // Highlight a specific proof path (e.g., proof 2)
+              const proofIndex = 1; // 0-based index for the second proof
+
+              // Animate the path from leaf to root
+              setTimeout(() => {
+                proofNodes[proofIndex].classList.add('highlight');
+              }, 500);
+
+              setTimeout(() => {
+                level2Nodes[Math.floor(proofIndex/2)].classList.add('highlight');
+              }, 1500);
+
+              setTimeout(() => {
+                level1Nodes[Math.floor(proofIndex/4)].classList.add('highlight');
+              }, 2500);
+
+              setTimeout(() => {
+                rootNode.classList.add('highlight');
+              }, 3500);
+
+              // Show the inclusion path
+              setTimeout(() => {
+                proofNodes[proofIndex].classList.add('active');
+                level2Nodes[Math.floor(proofIndex/2)].classList.add('active');
+                level1Nodes[Math.floor(proofIndex/4)].classList.add('active');
+                rootNode.classList.add('active');
+              }, 4500);
+            });
+          }
+
+          if (resetButton) {
+            resetButton.addEventListener('click', (e) => {
+              e.stopPropagation();
+              content.querySelectorAll('.merkle-node').forEach(node => {
+                node.classList.remove('highlight', 'active');
+              });
+            });
+          }
+
+          if (learnMoreBtn) {
+            learnMoreBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              addNotification('Coming Soon', 'ZK Proof educational content will be available in a future update', 'info');
+            });
+          }
+        }, 0);
+        break;
+
       default:
         content.innerHTML = `<div class="error-message">Window type "${windowType}" not supported</div>`;
     }
@@ -1410,7 +1757,7 @@ const Desktop = () => {
       `;
     } else if (cmd.startsWith('open ')) {
       const app = cmd.split(' ')[1];
-      if (['node', 'tasks', 'wallet', 'stats', 'terminal', 'settings', 'help', 'explorer'].includes(app)) {
+      if (['node', 'tasks', 'wallet', 'stats', 'terminal', 'settings', 'help', 'explorer', 'verification', 'distribution', 'merkle'].includes(app)) {
         openWindow(app);
         outputElement.innerHTML += `<div class="terminal-line">Opening ${app}...</div>`;
       } else {
@@ -1418,7 +1765,7 @@ const Desktop = () => {
       }
     } else if (cmd.startsWith('close ')) {
       const app = cmd.split(' ')[1];
-      if (['node', 'tasks', 'wallet', 'stats', 'terminal', 'settings', 'help', 'explorer'].includes(app)) {
+      if (['node', 'tasks', 'wallet', 'stats', 'terminal', 'settings', 'help', 'explorer', 'verification', 'distribution', 'merkle'].includes(app)) {
         closeWindow(app);
         outputElement.innerHTML += `<div class="terminal-line">Closing ${app}...</div>`;
       } else {
@@ -1479,6 +1826,9 @@ const Desktop = () => {
           case 'g':
             toggleWindow('settings');
             break;
+          case 'm':
+            toggleWindow('merkle');
+            break;
           default:
             break;
         }
@@ -1508,7 +1858,7 @@ const Desktop = () => {
     });
   }, []);
 
-  // Handle window focus
+  // Handle window focus with enhanced visual effects
   const handleWindowFocus = (windowType) => {
     console.log(`Window focus event: ${windowType}`);
 
@@ -1530,6 +1880,21 @@ const Desktop = () => {
         }));
       }
     }
+
+    // Add subtle professional focus effect
+    setTimeout(() => {
+      // Find the window element
+      const windowElement = document.querySelector(`.${windowConfig[windowType].class.split(' ')[0]}`);
+      if (windowElement) {
+        // Add a brief professional highlight effect
+        windowElement.classList.add('window-professional-focus');
+
+        // Remove the highlight class after animation completes
+        setTimeout(() => {
+          windowElement.classList.remove('window-professional-focus');
+        }, 400);
+      }
+    }, 50);
   };
 
   // Handle window close - with debounce to prevent accidental double-closing
@@ -1589,6 +1954,11 @@ const Desktop = () => {
           <p>Task Distribution</p>
         </div>
 
+        <div className="icon" id="merkle-icon" onClick={() => toggleWindow('merkle')}>
+          <MerkleIcon />
+          <p>Merkle Commitments</p>
+        </div>
+
         {/* New icons for additional applications */}
         <div className="icon" id="terminal-icon" onClick={() => toggleWindow('terminal')}>
           <div className="custom-icon terminal-icon"></div>
@@ -1644,28 +2014,44 @@ const Desktop = () => {
         </ReactWinBox>
       ))}
 
-      {/* Notifications */}
+      {/* Professional Notifications */}
       <div className="notifications-container">
         {notifications.map(notification => (
           <div
             key={notification.id}
-            className={`notification ${notification.type}`}
+            className={`notification professional ${notification.type}`}
             style={{
-              animation: 'slideIn 0.3s ease, glow 2s infinite alternate'
+              animation: `professionalSlideIn 0.3s ease`
+            }}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent clicks from propagating through
             }}
           >
-            <div className="notification-header">
-              <div className="notification-title">{notification.title}</div>
-              <div
-                className="notification-close"
-                onClick={() => setNotifications(prev =>
-                  prev.filter(n => n.id !== notification.id)
-                )}
-              >×</div>
-            </div>
-            <div className="notification-message">{notification.message}</div>
-            <div className="notification-time">
-              {new Date(notification.timestamp).toLocaleTimeString()}
+            {/* Notification icon based on type */}
+            <div className={`notification-icon ${notification.type}-icon`}></div>
+
+            <div className="notification-content">
+              <div className="notification-header">
+                <div className="notification-title">{notification.title}</div>
+                <div
+                  className="notification-close"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent event propagation
+                    setNotifications(prev =>
+                      prev.filter(n => n.id !== notification.id)
+                    );
+                  }}
+                >×</div>
+              </div>
+              <div className="notification-message">{notification.message}</div>
+              <div className="notification-time">
+                {new Date(notification.timestamp).toLocaleTimeString()}
+              </div>
+
+              {/* Progress bar that animates to show auto-hide timing */}
+              <div className="notification-progress-bar">
+                <div className="notification-progress-fill"></div>
+              </div>
             </div>
           </div>
         ))}
